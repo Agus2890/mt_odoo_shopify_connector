@@ -82,7 +82,7 @@
     </record>
 
     <record id="action_wizard_shopify_product_instance" model="ir.actions.act_window">
-        <field name="name">Shopify - Export Products</field>
+        <field name="name">Shopify - Exportar productos</field>
         <field name="res_model">shopify.product.instance.exp</field>
         <field name="binding_model_id" ref="model_product_template"/>
         <field name="binding_view_types">form,list</field>
@@ -91,7 +91,7 @@
     </record>
 
     <record id="action_wizard_shopify_import_product_instance" model="ir.actions.act_window">
-        <field name="name">Shopify - Import Products</field>
+        <field name="name">Shopify - Importar productos</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">shopify.product.instance.imp</field>
         <field name="view_id" ref="view_import_product_instance_form"/>

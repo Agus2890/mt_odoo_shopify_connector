@@ -68,7 +68,6 @@ class ShopifyProductImage(models.Model):
                         img_add = False if set(existing_ids).issubset(set(id[2])) else True
             
             result  = self.update_shopify_image(self.product_template_id.shopify_id, self.image_shopify_id, self.product_template_id.shopify_instance_id, add_img = img_add)
-
             if result:
                 self.image_shopify_id = self.image_shopify_id if isinstance(result, bool) else result.id
             return
@@ -204,10 +203,10 @@ class ShopifyProductImage(models.Model):
             self.create_shopify_image( self, attachment, ids_list)
    
     def delete_shopify_image(self, p_id, s_img_id, instance_id):
-        session = self.init_shopify_session(instance_id)
-        shopify.ShopifyResource.activate_session(session)
-        if self.is_image_exist(p_id, s_img_id, instance_id):    
-            del_img = shopify.Image.delete(s_img_id, product_id=p_id)
+        #session = self.init_shopify_session(instance_id)
+        #shopify.ShopifyResource.activate_session(session)
+        #if self.is_image_exist(p_id, s_img_id, instance_id):    
+        #    del_img = shopify.Image.delete(s_img_id, product_id=p_id)
         return True
             
     def is_image_exist(self, p_id, s_img_id, instance_id):

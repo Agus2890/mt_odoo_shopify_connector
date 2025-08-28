@@ -22,13 +22,13 @@ class ProductShopify(models.Model):
 
     shopify_name=fields.Char(string="Nombre")
     shopify_id = fields.Char('Shopify ID', index=True)
-    shopify_regular_price = fields.Float('Shopify Regular Price')
-    shopify_sale_price = fields.Float('Shopify Sale Price')
-    shopify_product_status = fields.Char('Shopify Product Status')
+    shopify_regular_price = fields.Float('Precio normal')
+    shopify_sale_price = fields.Float('Precio de venta')
+    shopify_product_status = fields.Char('Estado')
     shopify_barcode = fields.Char('Shopify Barcode')
     shopify_sku = fields.Char('Shopify SKU')
-    shopify_product_scope = fields.Char('Shopify Product Scope')
-    shopify_product_weight = fields.Float("Shopify Weight")
+    shopify_product_scope = fields.Char('Alcance del producto')
+    shopify_product_weight = fields.Float("Peso de Shopify")
     shopify_product_qty = fields.Float("Shopify Stock")
     product_template_id=fields.Many2one("product.template",string="Producto Odoo")
 
@@ -74,6 +74,16 @@ class Product(models.Model):
         res['type'] = "consu"
         
         return res
+
+    def get_inventory_shopify(self):
+        shopify_qty = 0
+        for inv_data in self.get_inventory_level(self.shopify_instance_id, self.id): 
+            try:
+                shopify_qty += int(inv_data['available'])
+            except:
+                pass
+        _logger.info('El inventario descargado es {}'.format(shopify_qty)) 
+        self.shopify_product_qty = shopify_qty
 
     shopify_id = fields.Char('Shopify ID', index=True)
     shopify_regular_price = fields.Float('Shopify Regular Price')
@@ -581,7 +591,6 @@ class Product(models.Model):
         self.env.cr.commit()     
        
     def export_images_to_shopify(self, product):
-
         session = self.init_shopify_session(product.shopify_instance_id)
         shopify.ShopifyResource.activate_session(session)
         
@@ -595,7 +604,6 @@ class Product(models.Model):
         for img_id in s_image_lists:
             s_image_id_lists.append(str(img_id.id))
 
-        #to add main image
         if img_count == 0 and product.image_1920 :
             data.update({'attachment' : product.image_1920.decode("utf-8")})
             new_img = shopify.Image.create(data)

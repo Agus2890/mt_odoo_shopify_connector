@@ -14,6 +14,21 @@
                 <field name="shopify_id" readonly="1" />
                 <!--<field name="is_exported" readonly="1" /> -->
             </field>
+            <field name="qty_available" position="before">
+                <field name="shopify_product_qty" readonly="1" />
+                <button name="get_inventory_shopify"
+                icon="fa-brands fa-cog"
+                class="oe_stat_button"
+                type="object"
+                string="Descargar Stock" invisible = "shopify_id == False"/>
+            </field>
+            <field name="qty_available" position="after">
+                <button name="mt_odoo_shopify_connector.action_wizard_shopify_import_inventory"
+                icon="fa-brands fa-cog"
+                class="oe_stat_button"
+                type="action"
+                string="Subir" invisible = "shopify_id == False"/>
+            </field>
         </field>
     </record>
 
