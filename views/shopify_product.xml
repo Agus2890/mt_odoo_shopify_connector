@@ -269,7 +269,7 @@
         </field>
     </record>
 
-     <menuitem id="menu_product_shipify" action="action_product_shopify" parent="sale.product_menu_catalog"
+     <menuitem id="menu_product_shipify" action="action_product_shopify" parent="menu_products"
             sequence="40"/>
 
     
