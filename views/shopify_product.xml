@@ -232,6 +232,8 @@
                 <field name="product_template_id"/>                
                 <field name="shopify_product_status"/>
                 <field name="shopify_instance_id" readonly="1" />
+                <field name="shopify_variant_id" readonly="1" />
+                <field name="shopify_inventory_id" readonly="1" />
             </list>
         </field>
     </record>
@@ -262,6 +264,8 @@
                             <field name="product_template_id"/>                
                             <field name="shopify_product_status"/>
                             <field name="shopify_instance_id" readonly="1" />
+                            <field name="shopify_variant_id" readonly="1" />
+                            <field name="shopify_inventory_id" readonly="1" />
                         </group>
                     </group>
                 </sheet>

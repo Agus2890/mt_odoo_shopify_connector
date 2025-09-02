@@ -22,6 +22,7 @@ class ProductShopify(models.Model):
 
     shopify_name=fields.Char(string="Nombre")
     shopify_id = fields.Char('Shopify ID', index=True)
+    shopify_variant_id = fields.Char('Shopify variant ID')
     shopify_regular_price = fields.Float('Precio normal')
     shopify_sale_price = fields.Float('Precio de venta')
     shopify_product_status = fields.Char('Estado')
