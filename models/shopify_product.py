@@ -36,6 +36,7 @@ class ProductShopify(models.Model):
     is_exported = fields.Boolean('Synced In Shopify', default=False)
     is_product_active = fields.Boolean()
     shopify_instance_id = fields.Many2one('shopify.instance', ondelete='cascade')
+    shopify_inventory_id = fields.Char(string="Shopify Inventory Item Id")
 
 
 class ProductProduct(models.Model):
