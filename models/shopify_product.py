@@ -31,13 +31,60 @@ class ProductShopify(models.Model):
     shopify_product_scope = fields.Char('Alcance del producto')
     shopify_product_weight = fields.Float("Peso de Shopify")
     shopify_product_qty = fields.Float("Shopify Stock")
-    product_template_id=fields.Many2one("product.template",string="Producto Odoo")
+    product_id=fields.Many2one("product.product",string="Producto Odoo")
+    qty_available = fields.Float(related="product_id.qty_available",string="Stock Odoo")
 
     is_shopify_product = fields.Boolean('Is Shopify Product', default=False)
     is_exported = fields.Boolean('Synced In Shopify', default=False)
     is_product_active = fields.Boolean()
     shopify_instance_id = fields.Many2one('shopify.instance', ondelete='cascade')
     shopify_inventory_id = fields.Char(string="Shopify Inventory Item Id")
+
+    def init_shopify_session(self, instance_id):
+        if instance_id.is_authenticated:
+            try:
+                session = shopify.Session(instance_id.shop_url, instance_id.api_version, instance_id.admin_api_key)
+                return session
+            except Exception as error:
+                raise UserError(_("Please check your connection and try again"))  
+        else :
+            raise UserError(_("Connection Instance needs to authenticate first. \n Please try after authenticating connection!!!"))
+
+    def action_update_inventory(self):
+        self.env['product.template'].export_product_stock_to_shopify(self.shopify_instance_id,self.product_id.id)
+
+    def get_inventory_shopify(self):
+        session = self.init_shopify_session(self.shopify_instance_id)
+        shopify.ShopifyResource.activate_session(session)
+        if self.shopify_inventory_id:
+            inv_lvl = shopify.InventoryLevel.find(inventory_item_ids = self.shopify_inventory_id, limit=50)
+
+            if inv_lvl[0].available == None:
+                #to enable Track quantity if not enabled.
+                shopify.InventoryItem({"id" : inv_lvl[0].inventory_item_id, 'tracked' : True}).save()
+                
+                inv_lvl = shopify.InventoryLevel.find(inventory_item_ids = self.shopify_inventory_id, limit=50)
+            
+            new_data = {
+                        'product_id': self.product_id.id,
+                        'qty_available': self.product_id.qty_available,
+                        'change_qty': self.product_id.shopify_product_free_qty or 0}
+            if inv_lvl:
+                new_data.update({                     
+                        'inventory_item_id':inv_lvl[0].inventory_item_id,
+                        'available': inv_lvl[0].available,
+                        'location_id': inv_lvl[0].location_id })
+            yield new_data
+
+    def sale_inventory_shopify(self):
+        shopify_qty = 0
+        for inv_data in self.get_inventory_shopify(): 
+            try:
+                shopify_qty += int(inv_data['available'])
+            except:
+                pass
+        _logger.info('El inventario descargado es {}'.format(shopify_qty)) 
+        self.shopify_product_qty = shopify_qty
 
 
 class ProductProduct(models.Model):

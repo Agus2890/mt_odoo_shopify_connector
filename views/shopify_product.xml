@@ -224,14 +224,17 @@
                   string="Productos Shopify"
                   sample="1">
                 <field name="shopify_id"/>
-                <field name="shopify_sku"/>
+                <field name="shopify_sku" optional="hide"/>
                 <field name="shopify_name"/>
-                <field name="shopify_regular_price"/>
-                <field name="shopify_sale_price"/>
+                <field name="shopify_regular_price" optional="hide"/>
+                <field name="shopify_sale_price" optional="hide"/>
                 <field name="shopify_product_qty"/>
-                <field name="product_template_id"/>                
+                <button name="sale_inventory_shopify" icon="fa-brands fa-arrow-down" class="oe_stat_button" type="object" string="Bajar" />
+                <field name="product_id"/>
+                <field name="qty_available"/>
+                <button name="action_update_inventory" icon="fa-brands fa-arrow-up" class="oe_stat_button" type="object" string="Subir"/> 
                 <field name="shopify_product_status"/>
-                <field name="shopify_instance_id" readonly="1" />
+                <field name="shopify_instance_id" readonly="1" optional="hide"/>
                 <field name="shopify_variant_id" readonly="1" />
                 <field name="shopify_inventory_id" readonly="1" />
             </list>
@@ -261,11 +264,11 @@
                         </group>
                         <group>
                             <field name="shopify_product_qty"/>
-                            <field name="product_template_id"/>                
+                            <field name="product_id"/>                
                             <field name="shopify_product_status"/>
-                            <field name="shopify_instance_id" readonly="1" />
-                            <field name="shopify_variant_id" readonly="1" />
-                            <field name="shopify_inventory_id" readonly="1" />
+                            <field name="shopify_instance_id" readonly="0" />
+                            <field name="shopify_variant_id" readonly="0" />
+                            <field name="shopify_inventory_id" readonly="0" />
                         </group>
                     </group>
                 </sheet>
