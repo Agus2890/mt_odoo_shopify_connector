@@ -39,6 +39,8 @@ class ProductShopify(models.Model):
     is_product_active = fields.Boolean()
     shopify_instance_id = fields.Many2one('shopify.instance', ondelete='cascade')
     shopify_inventory_id = fields.Char(string="Shopify Inventory Item Id")
+    date_update = fields.Datetime(string="Ultima actualizacion")
+    detall=fields.Char(string="Detalles")
 
     def init_shopify_session(self, instance_id):
         if instance_id.is_authenticated:
@@ -51,7 +53,7 @@ class ProductShopify(models.Model):
             raise UserError(_("Connection Instance needs to authenticate first. \n Please try after authenticating connection!!!"))
 
     def action_update_inventory(self):
-        self.env['product.template'].export_product_stock_to_shopify(self.shopify_instance_id,self.product_id.id)
+        self.env['product.template'].export_product_stock_to_shopify(self.shopify_instance_id,self.product_id.product_tmpl_id.id)
 
     def get_inventory_shopify(self):
         session = self.init_shopify_session(self.shopify_instance_id)
