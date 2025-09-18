@@ -42,6 +42,44 @@ class ProductShopify(models.Model):
     date_update = fields.Datetime(string="Ultima actualizacion")
     detall=fields.Char(string="Detalles")
 
+    def product_download_all(self):
+        product_shopify = self.browse(self.env.context.get('active_id'))
+        current_import = self.search([], order='shopify_id desc', limit=1)
+        since_id = current_import.shopify_id if current_import else 0
+        if product_shopify:
+            new_products = []
+            session = self.init_shopify_session(product_shopify.shopify_instance_id)
+            shopify.ShopifyResource.activate_session(session)
+            
+            get_next_page = True
+            i = 0
+            while get_next_page:
+                i += 1
+                _logger.info('roacion de paginas son  {}'.format(i)) 
+                products = shopify.Product.find(since_id = since_id, limit=100)
+                if not products:
+                    break
+                for product in products:
+                    for variant in product.variants:
+                        values={'shopify_name':product.title,'shopify_id':str(product.id),'shopify_variant_id':str(variant.id),
+                        'shopify_instance_id':1,'shopify_inventory_id':str(variant.inventory_item_id),'shopify_sale_price':variant.price,
+                        'shopify_product_qty':variant.inventory_quantity}
+                        product_ex = self.search([('shopify_id','=',str(product.id)),('shopify_variant_id','=',str(variant.id)),('shopify_inventory_id','=',str(variant.inventory_item_id)) ])
+                        if not product_ex:
+                            product_new_id = self.create(values)
+                            new_products.append(product_new_id.id)
+                since_id = max([p.id for p in products])
+                if len(products) < 100:
+                    get_next_page = False
+            return {
+                'name': 'Productos Descargados',
+                'type': 'ir.actions.act_window',
+                'res_model': 'product.shipify',
+                'view_mode': 'list,form',
+                'domain': [('id', 'in', new_products)],  # aquí tus ids dinámicos
+                'context': dict(self._context or {}),
+            }
+
     def init_shopify_session(self, instance_id):
         if instance_id.is_authenticated:
             try:

@@ -215,6 +215,9 @@
         </field>
     </record>
 
+    
+
+
 
     <record id="product_shipify_tree" model="ir.ui.view">
         <field name="name">product.shipify.list</field>
@@ -295,8 +298,26 @@
         </field>
     </record>
 
-     <menuitem id="menu_product_shipify" action="action_product_shopify" parent="menu_products"
+    <menuitem id="menu_product_shipify" action="action_product_shopify" parent="menu_products"
             sequence="40"/>
+
+    <record id="action_import_product_shopify" model="ir.actions.server">
+        <field name="name">Descargar Productos de Shopify</field>
+        <field name="model_id" ref="model_product_shipify"/>
+        <field name="binding_model_id" ref="model_product_shipify"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+            if records:
+                action = records.product_download_all()
+        </field>
+    </record>
+    
+    <menuitem id="menu_import_product_shopify"
+          name="Descargar Productos de Shopify"
+          parent="menu_products"
+          action="action_import_product_shopify"
+          sequence="41"/>
 
     
 
