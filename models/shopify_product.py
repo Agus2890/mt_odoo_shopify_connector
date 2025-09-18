@@ -53,7 +53,9 @@ class ProductShopify(models.Model):
             raise UserError(_("Connection Instance needs to authenticate first. \n Please try after authenticating connection!!!"))
 
     def action_update_inventory(self):
-        self.env['product.template'].export_product_stock_to_shopify(self.shopify_instance_id,self.product_id.product_tmpl_id.id)
+        self.env['product.template'].with_context(model_shipify_id = self.id ).export_product_stock_to_shopify(self.shopify_instance_id,self.product_id.product_tmpl_id.id)
+
+    
 
     def get_inventory_shopify(self):
         session = self.init_shopify_session(self.shopify_instance_id)
@@ -778,11 +780,16 @@ class Product(models.Model):
                 return self.export_product_stock_to_shopify(product.shopify_instance_id, product.id)
 
     def export_product_stock_to_shopify(self,shopify_instance_id, p_id):
-
         session = self.init_shopify_session(shopify_instance_id)
         shopify.ShopifyResource.activate_session(session) 
         success = False
-        for inv_data in self.get_inventory_level(shopify_instance_id, p_id):
+        context = self.env.context
+        data = []
+        if 'model_shipify_id' in context:
+            data = self.env['product.shipify'].browse(context.get('model_shipify_id')).get_inventory_shopify()
+        else:
+            data = self.get_inventory_level(shopify_instance_id, p_id)
+        for inv_data in data:
             
             try:  
                 shopify_qty=int(inv_data['available'])
