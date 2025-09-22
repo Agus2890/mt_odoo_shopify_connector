@@ -5,7 +5,7 @@ import requests
 import logging
 import time
 import shopify
-from datetime import timedelta
+from datetime import timedelta,datetime
 from odoo.exceptions import UserError, MissingError
 from odoo import models, api, fields, _
 from odoo.tools import config
@@ -41,6 +41,26 @@ class ProductShopify(models.Model):
     shopify_inventory_id = fields.Char(string="Shopify Inventory Item Id")
     date_update = fields.Datetime(string="Ultima actualizacion")
     detall=fields.Char(string="Detalles")
+
+    def cron_shopify_product_inventory(self):
+        yesterday = (datetime.today() - timedelta(days=1)).date()
+        start = datetime.combine(yesterday, datetime.min.time())
+        end = datetime.combine(yesterday, datetime.max.time())
+
+        product_ids = self.search([
+            ('product_id', '!=', False),
+            '|',
+            ('date_update', '=', False),   # sin fecha
+            '&',                           # rango completo de ayer
+            ('date_update', '>=', start),
+            ('date_update', '<=', end)
+        ], limit=15)
+        for record in product_ids:
+            if not record.shopify_product_qty:
+                record.sale_inventory_shopify()
+            if record.shopify_product_qty > record.qty_available:
+                record.action_update_inventory()
+            record.write({'date_update': datetime.now()})
 
     def product_download_all(self):
         product_shopify = self.browse(self.env.context.get('active_id'))
